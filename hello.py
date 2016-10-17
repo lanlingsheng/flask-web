@@ -1,13 +1,14 @@
 import os
 from flask import Flask
 from flask import render_template, session, redirect, url_for, flash
-from flask_script import Manager
+from flask_script import Manager, Shell
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import Form
 from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate, MigrateCommand
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -21,6 +22,12 @@ manager = Manager(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+manager.add_command('db', MigrateCommand)
+
+def make_shell_context():
+    return dict(app = app, db = db, User= User, Role = Role)
+manager.add_command("shell", Shell(make_context = make_shell_context))
 
 class Role(db.Model):
     __tablename__ ='roles'
