@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from flask import render_template, session, redirect, url_for, flash
+from flask_script import Manager
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import Form
@@ -16,16 +17,16 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'da
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 
-
+manager = Manager(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
 
 class Role(db.Model):
     __tablename__ ='roles'
-    id = db.Column(db.Integer, primary = True)
-    name = db.Column(db.String(64), unique = True)
-    users = db.relationsheip('User', backref='role', lazy= 'dynamic')
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64))
+    users = db.relationship('User', backref='role', lazy= 'dynamic')
 
     def __repr__(self):
         return '<Role %r>' % self.name
@@ -33,7 +34,7 @@ class Role(db.Model):
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.String(64), unique=True, index = True)
+    username = db.Column(db.String(64), index = True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
     def __repr__(self):
@@ -73,4 +74,5 @@ def internal_server_error(e):
     return render_template('500.html'), 500
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    db.create_all()
+    manager.run()
