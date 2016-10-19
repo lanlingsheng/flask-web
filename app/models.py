@@ -21,7 +21,7 @@ class User(db.Model):
 
     @property
     def password(self):
-        raise AttributeErrot('password is not a realable attribute')
+        raise AttributeError('password is not a realable attribute')
 
     @password.setter
     def password(self, password):
